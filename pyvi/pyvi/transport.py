@@ -71,7 +71,7 @@ class Transport:
     def calc_crc16(self, crc, byte):
         return 0
 
-    def read_package(self):
+    def read_package_from_xmega(self):
         """
         Receives a full package from the measurement shield.
         This function blocks the execution until a full package is read or a

@@ -1,0 +1,56 @@
+# vim: set ft=python
+
+import threading
+import Queue
+
+from pyvi import TestTransport
+from pyvi import UdpTransport
+from pyvi import MCUComm
+from pyvi import ServerComm
+
+
+class ThreadSerial(threading.Thread):
+
+    def __init__(self):
+        """
+        """
+        super(ThreadSerial, self).__init__()
+        self.port = TestTransport()
+        self.prot = MCUComm()
+        self.running = False
+
+    def run(self):
+        self.running = True
+        while(self.running):
+            pkg = self.port.read_package_from_xmega()
+            if pkg is not None:
+                m = self.prot.unpack(pkg)
+                measurements.put(m, timeout=0.1)
+
+    def kill(self):
+        self.running = False
+
+
+class ThreadUdp(threading.Thread):
+
+    def __init__(self):
+        """
+        """
+        super(ThreadUdp, self).__init__()
+        self.port = UdpTransport()
+        self.prot = ServerComm()
+        self.running = False
+
+    def run(self):
+        self.running = True
+        while(self.running):
+            pkg = measurements.get(timeout=0.1)
+            if pkg is not None:
+                m = self.prot.unpack(pkg)
+                measurements.put(m, timeout=0.1)
+
+    def kill(self):
+        self.running = False
+
+if __name__ == '__main__':
+    measurements = Queue.Queue(maxsize=100)
