@@ -23,6 +23,9 @@ class Measurement:
         self.Vrms = Vrms
         self.Phase = Phase
 
+    def __str__(self):
+        return "ID %d, Vrms %d, Irms %d" % (self.id_, self.Vrms, self.Irms)
+
 
 class MCUComm:
 
@@ -40,6 +43,10 @@ class MCUComm:
 
     def pack(self, measurement):
         return self.pkg.pack(*measurement.get_mcu())
+
+    def read(self, cmd):
+        a = reduce(lambda s, c: s + chr(int(c)), cmd, "")
+        return self.unpack(a)
 
 
 class ServerComm:

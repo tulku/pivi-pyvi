@@ -1,4 +1,6 @@
 from transport import Transport
+from protocol import MCUComm, Measurement
+import time
 
 
 class TestTransport(Transport):
@@ -7,30 +9,50 @@ class TestTransport(Transport):
     Uses a string to store the sent message and can generate
     answers.
     """
-    def __init__(self):
+    def __init__(self, auto_gen=False):
         Transport.__init__(self)
+        self.comm = MCUComm()
         self.wrote = ""
         self.ans_buff = ""
+        self.auto_gen = auto_gen
 
     def _wrote(self):
         return self.wrote
 
     def _clean(self):
         self.wrote = ""
-        self.ans_buff = ""
+        self.ans_buff = []
 
     def _ans(self, ans):
-        self.ans_buff = ans
+        self.ans_buff = list(ans)
 
     def _open(self):
         return self.settings['speed']
+
+    def _gen_message(self):
+        """ Generates a fake pivi message. It stores it internally and
+        when using 'read' you get it byte by byte. """
+        m = Measurement()
+        t = int(time.time())
+        m.set(42, t, 15, 195, 0)
+        msg = self.comm.pack(m)
+        self.ans_buff = self.encode_for_xmega(msg)
 
     def write(self, value):
         self.wrote = value
 
     def read(self, size=1):
-        read = self.ans_buff[:size]
-        self.ans_buff = self.ans_buff[size:]
+
+        if self.auto_gen:
+            if len(self.ans_buff) == 0:
+                self._gen_message()
+
+        # In case we want to force an answer for some test.
+        if self.ans_buff:
+            read = self.ans_buff.pop(0)
+        else:
+            read = ''
+
         return read
 
     def flush(self):

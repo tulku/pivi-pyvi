@@ -71,6 +71,24 @@ class Transport:
     def calc_crc16(self, crc, byte):
         return 0
 
+    def encode_for_xmega(self, pkg):
+        """
+        Sends a package to the xmega.
+        """
+        reserved = ['\x7E', '\x7F', '\x7D']
+        encoded = ['\x7E']
+        for byte in pkg:
+            if byte in reserved:
+                encoded.append('\x7D')
+                encoded.append(chr(ord(byte) ^ 0x20))
+            else:
+                encoded.append(byte)
+
+        encoded.append('\x00')
+        encoded.append('\x00')
+        encoded.append('\x7F')
+        return encoded
+
     def read_package_from_xmega(self):
         """
         Receives a full package from the measurement shield.
@@ -120,11 +138,11 @@ class Transport:
                 crc = self.calc_crc16(crc, b)
         # We stopped reading...
         if timeout is True:
-            print "Error: Timeout reading - PC << " + str(package)
+            #print "Error: Timeout reading - PC << " + str(package)
             return None
         elif crc != 0:
-            print "Error: CRC error - PC << " + self.print_pkg(package)
+            #print "Error: CRC error - PC << " + self.print_pkg(package)
             return None
         else:
-            print "PC << " + self.print_pkg(package[0:-2])
+            #print "PC << " + self.print_pkg(package[0:-2])
             return package[0:-2]

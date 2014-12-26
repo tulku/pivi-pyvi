@@ -62,6 +62,21 @@ class TransportTest(unittest.TestCase):
         pkg = self.t.read_package_from_xmega()
         self.assertEqual((0xAA, 0x45), tuple(pkg))
 
+    def test_encode_no_stuff(self):
+        a = self.t.encode_for_xmega("\x41\x42")
+        self.assertEquals("".join(a), "\x7E\x41\x42\x00\x00\x7F")
+
+    def test_encode_with_stuff(self):
+        a = self.t.encode_for_xmega("\x41\x7F\x42")
+        self.assertEquals("".join(a), "\x7E\x41\x7D\x5F\x42\x00\x00\x7F")
+
+    def test_autogen(self):
+        c = MCUComm()
+        auto_t = TestTransport(True)
+        pkg = auto_t.read_package_from_xmega()
+        m = c.read(pkg)
+        self.assertEqual(m.id_, 42)
+
 
 if __name__ == '__main__':
     unittest.main()
