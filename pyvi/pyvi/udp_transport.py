@@ -24,7 +24,7 @@ class UdpTransport(Transport):
         self.svr_addr = self.settings['server']
 
     def write(self, value):
-        self.sock.sendto(value, self.svr_addr)
+        self.sock.sendto(value, ('localhost', 9000))
 
     def read(self):
         pass

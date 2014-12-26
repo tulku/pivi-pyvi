@@ -1,7 +1,9 @@
-# vim: set ft=python
+# vim: set ft=python:
 
 import threading
 import Queue
+import signal
+import sys
 
 from pyvi import TestTransport
 from pyvi import UdpTransport
@@ -15,7 +17,7 @@ class ThreadSerial(threading.Thread):
         """
         """
         super(ThreadSerial, self).__init__()
-        self.port = TestTransport()
+        self.port = TestTransport(True)
         self.prot = MCUComm()
         self.running = False
 
@@ -24,8 +26,9 @@ class ThreadSerial(threading.Thread):
         while(self.running):
             pkg = self.port.read_package_from_xmega()
             if pkg is not None:
-                m = self.prot.unpack(pkg)
-                measurements.put(m, timeout=0.1)
+                m = self.prot.read(pkg)
+                if not measurements.full():
+                    measurements.put(m, timeout=0.1)
 
     def kill(self):
         self.running = False
@@ -37,20 +40,38 @@ class ThreadUdp(threading.Thread):
         """
         """
         super(ThreadUdp, self).__init__()
+        settings = {'server': 'localhost:9000'}
         self.port = UdpTransport()
+        self.port.open(settings)
         self.prot = ServerComm()
         self.running = False
 
     def run(self):
         self.running = True
         while(self.running):
-            pkg = measurements.get(timeout=0.1)
-            if pkg is not None:
-                m = self.prot.unpack(pkg)
-                measurements.put(m, timeout=0.1)
+            m = measurements.get(timeout=0.1)
+            if m is not None:
+                pkg = self.prot.pack(m)
+                self.port.write(pkg)
 
     def kill(self):
         self.running = False
 
 if __name__ == '__main__':
     measurements = Queue.Queue(maxsize=100)
+    serial = ThreadSerial()
+    udp = ThreadUdp()
+
+    def sig_handler(signum, frame):
+        print 'Stopping the program'
+        serial.kill()
+        udp.kill()
+        serial.join()
+        udp.join()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, sig_handler)
+    signal.signal(signal.SIGTERM, sig_handler)
+
+    serial.start()
+    udp.start()
