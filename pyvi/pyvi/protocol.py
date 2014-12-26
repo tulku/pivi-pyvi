@@ -87,7 +87,7 @@ class ServerComm:
         timestamp = year + month + day + hour + minute + second
         return timestamp
 
-    def calc_crc16(self, crc, byte):
+    def _crc16(self, crc, byte):
         """
         Calculates crc16-ibm of a message.
 
@@ -104,6 +104,14 @@ class ServerComm:
                 crc = (crc >> 1)
         return crc
 
+    def calc_crc16(self, msg):
+        msg_int = [ord(c) for c in msg]
+        crc = 0xFFFF
+        for byte in msg_int[:-2]:
+            self._crc16(crc, byte)
+
+        return crc
+
     def pack(self, measurement):
         id_, V, I = measurement.get_server()
         h = self.create_header(1001)
@@ -112,6 +120,9 @@ class ServerComm:
         p.append(V)
         p.append(I)
         p.append(0)
+        msg = self.pkg.pack(*p)
+        crc = self.calc_crc16(msg)
+        p[-1] = crc
         return self.pkg.pack(*p)
 
     def unpack(self, server_string):
