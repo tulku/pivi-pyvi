@@ -13,7 +13,7 @@ class MCUCommTest(unittest.TestCase):
         self.c = MCUComm()
         self.m = Measurement()
 
-        self.m.set(1, 10, 15, 220, 0)
+        self.m.set(1, 15, 220, 0)
 
     def test_set(self):
         pkg = self.c.pack(self.m)
@@ -28,7 +28,7 @@ class ServerCommTest(unittest.TestCase):
         self.s = ServerComm()
         self.m = Measurement()
 
-        self.m.set(1, 10, 15, 220, 0)
+        self.m.set(1, 15, 220, 0)
 
     def test_set(self):
         pkg = self.s.pack(self.m)

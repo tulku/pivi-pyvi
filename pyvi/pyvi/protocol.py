@@ -1,4 +1,5 @@
 from struct import Struct
+from datetime import datetime
 
 
 class Measurement:
@@ -11,14 +12,13 @@ class Measurement:
         self.Phase = None
 
     def get_server(self):
-        return self.id_, self.stamp, self.Irms, self.Vrms
+        return self.id_, self.Vrms, self.Irms
 
     def get_mcu(self):
-        return self.id_, self.stamp, self.Irms, self.Vrms, self.Phase
+        return self.id_, self.Irms, self.Vrms, self.Phase
 
-    def set(self, id_, stamp, Irms, Vrms, Phase):
+    def set(self, id_, Irms, Vrms, Phase):
         self.id_ = id_
-        self.stamp = stamp
         self.Irms = Irms
         self.Vrms = Vrms
         self.Phase = Phase
@@ -32,9 +32,9 @@ class MCUComm:
     def __init__(self):
         """
         One circuit is defined as a string containing 5 fields
-        | id_ (16 bits) | stamp (32) | Irmd (16) | Vrms (16) | Phase (16) |
+        | id_ (16 bits) | Irmd (16) | Vrms (16) | Phase (16) |
         """
-        self.pkg = Struct("hihhh")
+        self.pkg = Struct("hhhh")
 
     def unpack(self, string):
         m = Measurement()
@@ -51,20 +51,71 @@ class MCUComm:
 
 class ServerComm:
 
-    def __init__(self, protocol=4):
+    def __init__(self, protocol=4, pivi_id=4):
         """
         We add a header with the protocol version when sending it to the cloud.
         We will not send phase for now.
-        | protocol (8 bits) | id_ (16) | stamp (32) | Irms (16) | Vrms (16) |
+        | HEADER | CIRCUIT | VOLTAGE | CURRENT | CRC |
         """
         self.prot = protocol
-        self.pkg = Struct("Bhihh")
+        self.pkg = Struct("BIHIBHHH")
+        self.header_struct = Struct("BIHI")
+        pivi_mac = 10000
+        self.less_mac = pivi_mac + pivi_id
+
+    def create_header(self, msg_type):
+        """
+        Creates the header for the PIVI measurment package.
+        | Protocol | LESS MAC | MSG TYPE | TIMESTAMP |
+        """
+        t = self.create_timestamp()
+        return (self.prot, self.less_mac, msg_type, t)
+
+    def create_timestamp(self):
+        """
+        Creates a timestamp representation according to the LESS Protocol v4
+        spec.
+        """
+        now = datetime.now()
+        year = (now.year - 2000) << 27
+        month = now.month << 22
+        day = now.day << 17
+        hour = now.hour << 12
+        minute = now.minute << 6
+        second = now.second
+
+        timestamp = year + month + day + hour + minute + second
+        return timestamp
+
+    def calc_crc16(self, crc, byte):
+        """
+        Calculates crc16-ibm of a message.
+
+        :param crc: CRC calculated in previous iteration.
+                    For the first one it should be 0xFFFF.
+        :param byte: New byte to calculate the CRC.
+        :returns: Current CRC.
+        """
+        crc ^= byte
+        for i in range(0, 8):
+            if crc & 1:
+                crc = (crc >> 1) ^ 0xA001
+            else:
+                crc = (crc >> 1)
+        return crc
 
     def pack(self, measurement):
-        return self.pkg.pack(self.prot, *measurement.get_server())
+        id_, V, I = measurement.get_server()
+        h = self.create_header(1001)
+        p = list(h)
+        p.append(id_)
+        p.append(V)
+        p.append(I)
+        p.append(0)
+        return self.pkg.pack(*p)
 
     def unpack(self, server_string):
         m = Measurement()
-        prot, id_, stamp, Irms, Vrms = self.pkg.unpack(server_string)
-        m.set(id_, stamp, Irms, Vrms, 0)
+        a = self.pkg.unpack(server_string)
+        m.set(a[4], a[6], a[7], 0)
         return m

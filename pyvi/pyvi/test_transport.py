@@ -34,10 +34,9 @@ class TestTransport(Transport):
         """ Generates a fake pivi message. It stores it internally and
         when using 'read' you get it byte by byte. """
         m = Measurement()
-        t = int(time.time())
         v = 220 + random.randint(-10, 10)
         i = 5 + random.randint(-3, 14)
-        m.set(42, t, i, v, 0)
+        m.set(42, i, v, 0)
         msg = self.comm.pack(m)
         self.ans_buff = self.encode_for_xmega(msg)
 
