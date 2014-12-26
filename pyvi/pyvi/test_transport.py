@@ -1,6 +1,7 @@
 from transport import Transport
 from protocol import MCUComm, Measurement
 import time
+import random
 
 
 class TestTransport(Transport):
@@ -34,7 +35,9 @@ class TestTransport(Transport):
         when using 'read' you get it byte by byte. """
         m = Measurement()
         t = int(time.time())
-        m.set(42, t, 15, 195, 0)
+        v = 220 + random.randint(-10, 10)
+        i = 5 + random.randint(-3, 14)
+        m.set(42, t, i, v, 0)
         msg = self.comm.pack(m)
         self.ans_buff = self.encode_for_xmega(msg)
 
