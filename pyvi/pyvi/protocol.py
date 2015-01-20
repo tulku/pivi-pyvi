@@ -128,5 +128,5 @@ class ServerComm:
     def unpack(self, server_string):
         m = Measurement()
         a = self.pkg.unpack(server_string)
-        m.set(a[4], a[6], a[7], 0)
+        m.set(a[4], a[6], a[5], 0)
         return m
