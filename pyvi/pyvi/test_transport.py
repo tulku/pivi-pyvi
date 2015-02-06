@@ -36,7 +36,7 @@ class TestTransport(Transport):
         m = Measurement()
         v = 220 + random.randint(-10, 10)
         i = 5 + random.randint(-3, 14)
-        m.set(42, i, v, 0)
+        m.set(42, v*i, (i**2)**2, (v**2)**2)
         msg = self.comm.pack(m)
         self.ans_buff = self.encode_for_xmega(msg)
 

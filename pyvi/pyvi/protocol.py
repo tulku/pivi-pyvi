@@ -1,5 +1,6 @@
 from struct import Struct
 from datetime import datetime
+from math import sqrt
 
 
 class Measurement:
@@ -9,22 +10,22 @@ class Measurement:
         self.stamp = None
         self.Irms = None
         self.Vrms = None
-        self.Phase = None
+        self.Power = None
 
     def get_server(self):
         return self.id_, self.Vrms, self.Irms
 
     def get_mcu(self):
-        return self.id_, self.Irms, self.Vrms, self.Phase
+        return self.id_, self.Power, self.Irms, self.Vrms
 
-    def set(self, id_, Irms, Vrms, Phase):
+    def set(self, id_, Power, Irms2, Vrms2):
         self.id_ = id_
-        self.Irms = Irms
-        self.Vrms = Vrms
-        self.Phase = Phase
+        self.Power = Power
+        self.Irms = sqrt(Irms2)
+        self.Vrms = sqrt(Vrms2)
 
     def __str__(self):
-        return "ID %d, Vrms %d, Irms %d" % (self.id_, self.Vrms, self.Irms)
+        return "ID %d, Vrms %.2f, Irms %.2f, Power %.2f" % (self.id_, self.Vrms, self.Irms, self.Power)
 
 
 class MCUComm:
@@ -32,9 +33,9 @@ class MCUComm:
     def __init__(self):
         """
         One circuit is defined as a string containing 5 fields
-        | id_ (16 bits) | Irmd (16) | Vrms (16) | Phase (16) |
+        | id_ (16 bits) | Power (32) | Irms**2 (32) | Vrms**2 (32) |
         """
-        self.pkg = Struct("hhhh")
+        self.pkg = Struct("<Hfff")
 
     def unpack(self, string):
         m = Measurement()

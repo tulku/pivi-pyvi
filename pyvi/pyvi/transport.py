@@ -84,8 +84,6 @@ class Transport:
             else:
                 encoded.append(byte)
 
-        encoded.append('\x00')
-        encoded.append('\x00')
         encoded.append('\x7F')
         return encoded
 
@@ -145,4 +143,4 @@ class Transport:
             return None
         else:
             #print "PC << " + self.print_pkg(package[0:-2])
-            return package[0:-2]
+            return package

@@ -5,7 +5,7 @@ import Queue
 import signal
 import sys
 
-from pyvi import TestTransport
+from pyvi import SerialTransport
 from pyvi import UdpTransport
 from pyvi import MCUComm
 from pyvi import ServerComm
@@ -17,7 +17,11 @@ class ThreadSerial(threading.Thread):
         """
         """
         super(ThreadSerial, self).__init__()
-        self.port = TestTransport(True)
+        settings = {'port': '/dev/ttyUSB0',
+                    'baudrate': 115200,
+                    'timeout': 0}
+        self.port = SerialTransport()
+        self.port.open(settings)
         self.prot = MCUComm()
         self.running = False
 
@@ -29,6 +33,7 @@ class ThreadSerial(threading.Thread):
                 m = self.prot.read(pkg)
                 if not measurements.full():
                     measurements.put(m, timeout=0.1)
+                print m
 
     def kill(self):
         self.running = False
