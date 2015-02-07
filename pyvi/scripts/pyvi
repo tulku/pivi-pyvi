@@ -6,6 +6,7 @@ import signal
 import sys
 
 from pyvi import SerialTransport
+from pyvi import TestTransport
 from pyvi import UdpTransport
 from pyvi import MCUComm
 from pyvi import ServerComm
@@ -13,14 +14,19 @@ from pyvi import ServerComm
 
 class ThreadSerial(threading.Thread):
 
-    def __init__(self):
+    def __init__(self, test=False):
         """
         """
         super(ThreadSerial, self).__init__()
         settings = {'port': '/dev/ttyUSB0',
                     'baudrate': 115200,
                     'timeout': 0}
-        self.port = SerialTransport()
+        if test is True:
+            self.test = True
+            self.port = TestTransport(True)
+        else:
+            self.test = False
+            self.port = SerialTransport()
         self.port.open(settings)
         self.prot = MCUComm()
         self.running = False
@@ -33,7 +39,9 @@ class ThreadSerial(threading.Thread):
                 m = self.prot.read(pkg)
                 if not measurements.full():
                     measurements.put(m, timeout=0.1)
-                print m
+            if self.test:
+                import time
+                time.sleep(2)
 
     def kill(self):
         self.running = False
@@ -57,9 +65,9 @@ class ThreadUdp(threading.Thread):
             try:
                 m = measurements.get(timeout=0.1)
             except Queue.Empty:
-                print 'No meassages in the queue.'
                 continue
             if m is not None:
+                print m
                 pkg = self.prot.pack(m)
                 self.port.write(pkg)
 
@@ -68,7 +76,13 @@ class ThreadUdp(threading.Thread):
 
 if __name__ == '__main__':
     measurements = Queue.Queue(maxsize=100)
-    serial = ThreadSerial()
+
+    if len(sys.argv) == 2 and sys.argv[1] == "--virtual":
+        virtual = True
+    else:
+        virtual = False
+    serial = ThreadSerial(virtual)
+
     udp = ThreadUdp()
 
     def sig_handler(signum, frame):

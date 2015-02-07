@@ -13,10 +13,12 @@ class Measurement:
         self.Power = None
 
     def get_server(self):
-        return self.id_, self.Vrms, self.Irms
+        return self.id_, self.Power, self.Irms, self.Vrms
 
     def get_mcu(self):
-        return self.id_, self.Power, self.Irms, self.Vrms
+        # We **2 I and V here because we want to get the values as
+        # the MCU would send them
+        return self.id_, self.Power, self.Irms**2, self.Vrms**2
 
     def set(self, id_, Power, Irms2, Vrms2):
         self.id_ = id_
@@ -25,7 +27,10 @@ class Measurement:
         self.Vrms = sqrt(Vrms2)
 
     def __str__(self):
-        return "ID %d, Vrms %.2f, Irms %.2f, Power %.2f" % (self.id_, self.Vrms, self.Irms, self.Power)
+        return "ID %d, Vrms %.2f, Irms %.2f, Power %.2f" % (self.id_,
+                                                            self.Vrms,
+                                                            self.Irms,
+                                                            self.Power)
 
 
 class MCUComm:
@@ -56,10 +61,10 @@ class ServerComm:
         """
         We add a header with the protocol version when sending it to the cloud.
         We will not send phase for now.
-        | HEADER | CIRCUIT | VOLTAGE | CURRENT | CRC |
+        | HEADER | CIRCUIT | POWER | CURRENT | VOLTAGE | CRC |
         """
         self.prot = protocol
-        self.pkg = Struct("BIHIBHHH")
+        self.pkg = Struct("<BIHIHfffH")
         self.header_struct = Struct("BIHI")
         pivi_mac = 10000
         self.less_mac = pivi_mac + pivi_id
@@ -114,12 +119,13 @@ class ServerComm:
         return crc
 
     def pack(self, measurement):
-        id_, V, I = measurement.get_server()
+        id_, P, I, V = measurement.get_server()
         h = self.create_header(1001)
         p = list(h)
         p.append(id_)
-        p.append(V)
+        p.append(P)
         p.append(I)
+        p.append(V)
         p.append(0)
         msg = self.pkg.pack(*p)
         crc = self.calc_crc16(msg)
@@ -129,5 +135,5 @@ class ServerComm:
     def unpack(self, server_string):
         m = Measurement()
         a = self.pkg.unpack(server_string)
-        m.set(a[4], a[6], a[5], 0)
+        m.set(a[4], a[5], a[6]**2, a[7]**2)
         return m

@@ -1,6 +1,5 @@
 from transport import Transport
 from protocol import MCUComm, Measurement
-import time
 import random
 
 
@@ -28,7 +27,7 @@ class TestTransport(Transport):
         self.ans_buff = list(ans)
 
     def _open(self):
-        return self.settings['speed']
+        pass
 
     def _gen_message(self):
         """ Generates a fake pivi message. It stores it internally and
@@ -36,7 +35,7 @@ class TestTransport(Transport):
         m = Measurement()
         v = 220 + random.randint(-10, 10)
         i = 5 + random.randint(-3, 14)
-        m.set(42, v*i, (i**2)**2, (v**2)**2)
+        m.set(42, v*i, (i**2), (v**2))
         msg = self.comm.pack(m)
         self.ans_buff = self.encode_for_xmega(msg)
 
