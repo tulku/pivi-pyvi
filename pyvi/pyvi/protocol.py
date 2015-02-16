@@ -66,7 +66,7 @@ class ServerComm:
         self.prot = protocol
         self.pkg = Struct("<BIHIHfffH")
         self.header_struct = Struct("BIHI")
-        pivi_mac = 10000
+        pivi_mac = 900
         self.less_mac = pivi_mac + pivi_id
 
     def create_header(self, msg_type):
@@ -122,7 +122,7 @@ class ServerComm:
         id_, P, I, V = measurement.get_server()
         h = self.create_header(1001)
         p = list(h)
-        p.append(id_)
+        p.append(self.less_mac * 10 + id_)
         p.append(P)
         p.append(I)
         p.append(V)

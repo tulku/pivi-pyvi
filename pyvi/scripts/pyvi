@@ -67,7 +67,7 @@ class ThreadUdp(threading.Thread):
             except Queue.Empty:
                 continue
             if m is not None:
-                print m
+                print "From PIVI: {}, pkg: {}".format(self.prot.less_mac, m)
                 pkg = self.prot.pack(m)
                 self.port.write(pkg)
 
