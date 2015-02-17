@@ -20,7 +20,7 @@ class ThreadSerial(threading.Thread):
         super(ThreadSerial, self).__init__()
         settings = {'port': '/dev/ttyUSB0',
                     'baudrate': 115200,
-                    'timeout': 0}
+                    'timeout': 2}
         if test is True:
             self.test = True
             self.port = TestTransport(True)
