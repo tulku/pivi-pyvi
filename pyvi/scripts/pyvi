@@ -51,7 +51,7 @@ class ThreadSerial(threading.Thread):
 
 class ThreadUdp(threading.Thread):
 
-    def __init__(self):
+    def __init__(self, virtual=False):
         """
         """
         super(ThreadUdp, self).__init__()
@@ -60,7 +60,11 @@ class ThreadUdp(threading.Thread):
 
         self.port = UdpTransport()
         self.port.open(settings)
-        self.prot = ServerComm(pivi_id=PIVI_ID)
+        if virtual is False:
+            p = PIVI_ID
+        else:
+            p = 0
+        self.prot = ServerComm(pivi_id=p)
         self.running = False
 
     def run(self):
@@ -86,8 +90,7 @@ if __name__ == '__main__':
     else:
         virtual = False
     serial = ThreadSerial(virtual)
-
-    udp = ThreadUdp()
+    udp = ThreadUdp(virtual)
 
     def sig_handler(signum, frame):
         print 'Stopping the program'
