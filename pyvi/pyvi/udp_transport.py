@@ -22,9 +22,11 @@ class UdpTransport(Transport):
     def _open(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.svr_addr = self.settings['server']
+        self.svr = self.svr_addr.split(':')[0]
+        self.port = int(self.svr_addr.split(':')[1])
 
     def write(self, value):
-        self.sock.sendto(value, ('localhost', 9000))
+        self.sock.sendto(value, (self.svr, self.port))
 
     def read(self):
         pass

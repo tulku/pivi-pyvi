@@ -11,6 +11,8 @@ from pyvi import UdpTransport
 from pyvi import MCUComm
 from pyvi import ServerComm
 
+PIVI_ID = 1
+
 
 class ThreadSerial(threading.Thread):
 
@@ -53,10 +55,12 @@ class ThreadUdp(threading.Thread):
         """
         """
         super(ThreadUdp, self).__init__()
-        settings = {'server': 'localhost:9000'}
+        settings = {'server': '54.213.133.127:9000'}
+        #settings = {'server': 'localhost:9000'}
+
         self.port = UdpTransport()
         self.port.open(settings)
-        self.prot = ServerComm()
+        self.prot = ServerComm(pivi_id=PIVI_ID)
         self.running = False
 
     def run(self):
