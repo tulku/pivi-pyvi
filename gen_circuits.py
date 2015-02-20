@@ -16,20 +16,20 @@ help = """
        > exit
        """
 
-if sys.argv[1] == '--help':
+if len(sys.argv) > 1 and sys.argv[1] == '--help':
     print help
     sys.exit(0)
 
 PIVI_BASE_ID = 900
 
 PIVIs = {0: {'location': 'Virtual Device. Random data.'},
-         5: {'location': 'Hallway fifth floor.'},
+         1: {'location': 'Hallway fifth floor.'},
+         2: {'location': 'Below server rack fifth floor'},
+         3: {'location': 'Below server rack fifth floor'},
+         4: {'location': 'Hallway second floor.'},
+         5: {'location': 'Below server rack fifth floor'},
          6: {'location': 'Below server rack fifth floor'},
-         7: {'location': 'Below server rack fifth floor'},
-         8: {'location': 'Hallway second floor.'},
-         9: {'location': 'Below server rack fifth floor'},
-         10: {'location': 'Below server rack fifth floor'},
-         11: {'location': 'Below server rack fifth floor'}}
+         7: {'location': 'Below server rack fifth floor'}}
 
 CIRCUITS = {0: {1: 'Virtual line 1',
                 2: 'Virtual line 2',
@@ -37,9 +37,10 @@ CIRCUITS = {0: {1: 'Virtual line 1',
                 4: 'Virtual line 4',
                 5: 'Virtual line 5',
                 6: 'Virtual line 6'},
-            5: {1: 'Non stabilized power outlets',
-                2: 'Ceiling lights',
-                3: 'Water dispenser and power outlets'}}
+            1: {3: 'Non stabilized power outlets',
+                4: 'Ceiling lights',
+                5: 'Water dispenser and power outlets',
+                6: 'Bathroom lights'}}
 
 
 for pivi in CIRCUITS:
