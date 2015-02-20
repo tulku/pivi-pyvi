@@ -37,10 +37,14 @@ class ThreadSerial(threading.Thread):
         self.running = True
         while(self.running):
             pkg = self.port.read_package_from_xmega()
-            if pkg is not None:
-                m = self.prot.read(pkg)
-                if not measurements.full():
-                    measurements.put(m, timeout=0.1)
+            try:
+                if pkg is not None:
+                    m = self.prot.read(pkg)
+                    if not measurements.full():
+                        measurements.put(m, timeout=0.1)
+            except:
+                pass
+
             if self.test:
                 import time
                 time.sleep(2)
@@ -55,8 +59,8 @@ class ThreadUdp(threading.Thread):
         """
         """
         super(ThreadUdp, self).__init__()
-        settings = {'server': '54.213.133.127:9000'}
-        #settings = {'server': 'localhost:9000'}
+        #settings = {'server': '54.213.133.127:9000'}
+        settings = {'server': 'localhost:9000'}
 
         self.port = UdpTransport()
         self.port.open(settings)
