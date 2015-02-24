@@ -1,111 +1,61 @@
 # vim: set ft=python:
 
-import threading
 import Queue
 import signal
 import sys
+import time
 
 from pyvi import SerialTransport
 from pyvi import TestTransport
 from pyvi import UdpTransport
-from pyvi import MCUComm
-from pyvi import ServerComm
+from pyvi import ThreadSerial
+from pyvi import ThreadUdp
 
-PIVI_ID = 1
-
-
-class ThreadSerial(threading.Thread):
-
-    def __init__(self, test=False):
-        """
-        """
-        super(ThreadSerial, self).__init__()
-        settings = {'port': '/dev/ttyUSB0',
-                    'baudrate': 115200,
-                    'timeout': 2}
-        if test is True:
-            self.test = True
-            self.port = TestTransport(True)
-        else:
-            self.test = False
-            self.port = SerialTransport()
-        self.port.open(settings)
-        self.prot = MCUComm()
-        self.running = False
-
-    def run(self):
-        self.running = True
-        while(self.running):
-            pkg = self.port.read_package_from_xmega()
-            try:
-                if pkg is not None:
-                    m = self.prot.read(pkg)
-                    if not measurements.full():
-                        measurements.put(m, timeout=0.1)
-            except:
-                pass
-
-            if self.test:
-                import time
-                time.sleep(2)
-
-    def kill(self):
-        self.running = False
+from utils import Configuration
+from utils import logs
 
 
-class ThreadUdp(threading.Thread):
+def sig_handler(signum, frame):
+    pyvi_logger.info('Signal handler stopping the program')
+    serial.kill()
+    udp.kill()
+    serial.join()
+    udp.join()
+    sys.exit(0)
 
-    def __init__(self, virtual=False):
-        """
-        """
-        super(ThreadUdp, self).__init__()
-        #settings = {'server': '54.213.133.127:9000'}
-        settings = {'server': 'localhost:9000'}
+if len(sys.argv) == 2:
+    conf_file = sys.argv[1]
+else:
+    conf_file = '/etc/pivi.cfg'
 
-        self.port = UdpTransport()
-        self.port.open(settings)
-        if virtual is False:
-            p = PIVI_ID
-        else:
-            p = 0
-        self.prot = ServerComm(pivi_id=p)
-        self.running = False
+conf = Configuration(conf_file=conf_file)
+pyvi_logger = logs.get_logger('Pyvi', conf_file=conf_file)
+serial_logger = logs.get_logger('Serial', conf_file=conf_file)
+udp_logger = logs.get_logger('Udp', conf_file=conf_file)
 
-    def run(self):
-        self.running = True
-        while(self.running):
-            try:
-                m = measurements.get(timeout=0.1)
-            except Queue.Empty:
-                continue
-            if m is not None:
-                print "From PIVI: {}, pkg: {}".format(self.prot.less_mac, m)
-                pkg = self.prot.pack(m)
-                self.port.write(pkg)
+if conf.is_virtual():
+    serial_transport = TestTransport(auto_gen=True)
+else:
+    serial_transport = SerialTransport()
+    serial_transport.open(conf.serial_port())
 
-    def kill(self):
-        self.running = False
+pivi_id = int(conf.pivi_id())
+udp_transport = UdpTransport()
+udp_transport.open(conf.server_uri())
 
-if __name__ == '__main__':
-    measurements = Queue.Queue(maxsize=100)
+measurements = Queue.Queue(maxsize=100)
 
-    if len(sys.argv) == 2 and sys.argv[1] == "--virtual":
-        virtual = True
-    else:
-        virtual = False
-    serial = ThreadSerial(virtual)
-    udp = ThreadUdp(virtual)
+serial = ThreadSerial(serial_logger, serial_transport, measurements)
+serial.daemon = True
+udp = ThreadUdp(udp_logger, udp_transport, pivi_id, measurements)
+udp.daemon = True
 
-    def sig_handler(signum, frame):
-        print 'Stopping the program'
-        serial.kill()
-        udp.kill()
-        serial.join()
-        udp.join()
-        sys.exit(0)
+signal.signal(signal.SIGINT, sig_handler)
+signal.signal(signal.SIGTERM, sig_handler)
 
-    signal.signal(signal.SIGINT, sig_handler)
-    signal.signal(signal.SIGTERM, sig_handler)
+pyvi_logger.info('Pyvi threads about to start.')
+serial.start()
+udp.start()
 
-    serial.start()
-    udp.start()
+while (True):
+    time.sleep(10)

@@ -1,7 +1,7 @@
 from transport import Transport
 from protocol import MCUComm, Measurement
 import random
-
+import time
 
 class TestTransport(Transport):
     """
@@ -47,6 +47,7 @@ class TestTransport(Transport):
 
         if self.auto_gen:
             if len(self.ans_buff) == 0:
+                time.sleep(2)
                 self._gen_message()
 
         # In case we want to force an answer for some test.
