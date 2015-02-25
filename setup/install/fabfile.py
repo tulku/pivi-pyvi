@@ -31,7 +31,7 @@ def install():
     # Copies the deployment ssh key
     copy_sshid()
     # Install deb packages in main
-    #debian_main()
+    debian_main()
     # Install packages from pip
     pip_all()
     # Clone and install pimaker software
