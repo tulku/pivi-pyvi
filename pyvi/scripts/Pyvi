@@ -1,4 +1,4 @@
-# vim: set ft=python:
+#! /usr/bin/env python
 
 import Queue
 import signal
@@ -65,3 +65,5 @@ udp.start()
 
 while (True):
     time.sleep(10)
+
+# vim: set ft=python:
