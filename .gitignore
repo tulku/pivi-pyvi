@@ -13,3 +13,5 @@ meter.bin
 *env/
 build/
 *.pyc
+
+setup/bootstrap/image/
