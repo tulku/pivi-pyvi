@@ -1,0 +1,15 @@
+*.bak
+$*
+*cache.lib
+*~
+
+sim.log
+sim.op.raw
+sim.raw
+sim.net
+
+meter.bin
+
+*env/
+build/
+*.pyc

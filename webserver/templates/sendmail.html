@@ -1,0 +1,35 @@
+$def with (output, timestamp)
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>PIVI - email sent!</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/static/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/dist/css/bootstrap-theme.min.css">
+<script src="/static/dist/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+<div class="container">
+<div class="page-header">
+  <h1>PIVI - email sent!</h1>
+</div>
+
+<div class="col-md-12 text-center">
+  All the meter logs were sent to: <em>$output</em>
+</div>
+
+<hr>
+<div class="row">
+  <div class="col-md-12 text-center">
+    <img src="/static/logo.jpg">
+  </div>
+  <div class="col-md-12 text-center">
+    <small>Generated on $timestamp</small>
+  </div>
+</div>
+
+</body>
+
+</html>

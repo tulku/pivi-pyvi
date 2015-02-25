@@ -1,0 +1,53 @@
+$def with (log_level, logs_names, logs_cont, timestamp)
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>PIVI - Diagnostics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/static/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/dist/css/bootstrap-theme.min.css">
+<script src="/static/dist/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+<div class="container">
+<div class="page-header">
+  <h1>PIVI Diagnostics Page</h1>
+</div>
+
+<div class="row">
+  <div class="col-md-12 text-center"><h1> Send Logs to LESS </h1></div>
+  <div class="col-md-12 text-center">
+  <p class="lead">To help you diagnose the problems with the smart meter, you can share the log files
+  with LESS.</p>
+  </div>
+  <div class="col-md-12 text-center">
+    <p><a class="btn btn-primary btn-lg" role="button" href="sendlogs.html">Send Logs</a></p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12 text-center"><h1> Log Files </h1></div>
+</div>
+<p class="lead">Log level: $log_level</p>
+
+  $for log_number in range(len(logs_names)):
+  <div class="row">
+    <div class="col-md-12"><h2> $logs_names[log_number] </h2></div>
+  </div>
+  <div class="row">
+    <div class="col-md-12"><pre>$logs_cont[log_number]</pre></div>
+  </div>
+
+<hr>
+<div class="row">
+  <div class="col-md-12 text-center">
+    <img src="/static/logo.jpg">
+  </div>
+  <div class="col-md-12 text-center">
+    <small>Generated on $timestamp</small>
+  </div>
+</div>
+</body>
+</html>
