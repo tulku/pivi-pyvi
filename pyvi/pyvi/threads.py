@@ -1,5 +1,6 @@
 import threading
 import Queue
+from utils import logs
 
 from pyvi import MCUComm
 from pyvi import ServerComm
@@ -7,7 +8,7 @@ from pyvi import ServerComm
 
 class ThreadSerial(threading.Thread):
 
-    def __init__(self, logger, transport, queue):
+    def __init__(self, conf_file, transport, queue):
         """
         Threads that read from the Serial port and saves data to a Queue.
         """
@@ -15,8 +16,9 @@ class ThreadSerial(threading.Thread):
         self.port = transport
         self.protocol = MCUComm()
         self.running = False
-        self.l = logger
+        self.l = logs.get_logger('Serial', conf_file=conf_file)
         self.queue = queue
+        self.lr = logs.LogReader(conf_file)
 
     def run(self):
         self.running = True
@@ -29,8 +31,11 @@ class ThreadSerial(threading.Thread):
                         self.queue.put(m, timeout=0.1)
                         msg = "Read: {}".format(m)
                         self.l.debug(msg)
+                    else:
+                        self.l.error("Queue was full dropping {}".format(m))
             except:
                 self.l.exception("Exception while reading from serial.")
+                self.lr.send_mail()
 
     def kill(self):
         self.running = False
@@ -38,7 +43,7 @@ class ThreadSerial(threading.Thread):
 
 class ThreadUdp(threading.Thread):
 
-    def __init__(self, logger, transport, pivi_id, queue):
+    def __init__(self, conf_file, transport, pivi_id, queue):
         """
         Thread that reads from a Queue and sends data to a remote server
         """
@@ -48,14 +53,15 @@ class ThreadUdp(threading.Thread):
         self.port = transport
         self.mac = self.protocol.less_mac
         self.running = False
-        self.l = logger
+        self.l = logs.get_logger('Udp', conf_file=conf_file)
         self.queue = queue
+        self.lr = logs.LogReader(conf_file)
 
     def run(self):
         self.running = True
         while(self.running):
             try:
-                m = self.queue.get(timeout=1)
+                m = self.queue.get(timeout=2)
             except Queue.Empty:
                 self.l.debug("Incoming queue empty")
                 continue
@@ -67,6 +73,7 @@ class ThreadUdp(threading.Thread):
                     self.port.write(pkg)
             except:
                 self.l.exception("Exception while sending via UDP.")
+                self.lr.send_mail()
 
     def kill(self):
         self.running = False

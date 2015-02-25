@@ -21,6 +21,8 @@ def sig_handler(signum, frame):
     udp.kill()
     serial.join()
     udp.join()
+    lr = logs.LogReader(conf_file)
+    lr.send_mail()
     sys.exit(0)
 
 if len(sys.argv) == 2:
@@ -30,24 +32,28 @@ else:
 
 conf = Configuration(conf_file=conf_file)
 pyvi_logger = logs.get_logger('Pyvi', conf_file=conf_file)
-serial_logger = logs.get_logger('Serial', conf_file=conf_file)
-udp_logger = logs.get_logger('Udp', conf_file=conf_file)
 
-if conf.is_virtual():
-    serial_transport = TestTransport(auto_gen=True)
-else:
-    serial_transport = SerialTransport()
-    serial_transport.open(conf.serial_port())
+try:
+    if conf.is_virtual():
+        serial_transport = TestTransport(auto_gen=True)
+    else:
+        serial_transport = SerialTransport()
+        serial_transport.open(conf.serial_port())
 
-pivi_id = int(conf.pivi_id())
-udp_transport = UdpTransport()
-udp_transport.open(conf.server_uri())
+    pivi_id = int(conf.pivi_id())
+    udp_transport = UdpTransport()
+    udp_transport.open(conf.server_uri())
+except:
+    pyvi_logger.exception("Exception while creating the transports.")
+    lr = logs.LogReader(conf_file)
+    lr.send_mail()
+    raise
 
 measurements = Queue.Queue(maxsize=100)
 
-serial = ThreadSerial(serial_logger, serial_transport, measurements)
+serial = ThreadSerial(conf_file, serial_transport, measurements)
 serial.daemon = True
-udp = ThreadUdp(udp_logger, udp_transport, pivi_id, measurements)
+udp = ThreadUdp(conf_file, udp_transport, pivi_id, measurements)
 udp.daemon = True
 
 signal.signal(signal.SIGINT, sig_handler)
