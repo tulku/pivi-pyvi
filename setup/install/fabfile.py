@@ -46,13 +46,14 @@ def copy_sshid():
 
 
 def copy_configs():
-    sudo('shopt -s dotglob; cp -R /home/pi/src/setup/configs/* /')
+    sudo('shopt -s dotglob; cp -R /home/pi/src/configs/* /')
 
 
 def install_pivi():
     git_get('pivi-code', 'src')
     sudo('cd /home/pi/src/pyvi/; python setup.py install')
     sudo('cd /home/pi/src/webserver/; chown -R www-data:www-data *')
+    sudo('update-rc.d lighttpd defaults')
     # Install custom configuration
     copy_configs()
 
