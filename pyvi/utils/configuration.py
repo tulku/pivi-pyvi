@@ -21,8 +21,8 @@ class Configuration(object):
 
     def serial_port(self):
         port = self.config.get('serial', 'device')
-        baudrate = int(self.config.get('serial', 'device'))
-        timeout = int(self.config.get('serial', 'timeout'))
+        baudrate = int(self.config.get('serial', 'baudrate'))
+        timeout = float(self.config.get('serial', 'timeout'))
         return {'port': port, 'baudrate': baudrate,
                 'timeout': timeout}
 
