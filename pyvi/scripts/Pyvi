@@ -22,7 +22,7 @@ def sig_handler(signum, frame):
     serial.join()
     udp.join()
     lr = logs.LogReader(conf_file)
-    lr.send_mail()
+    lr.send_mail('Signal handler stopping the program')
     sys.exit(0)
 
 if len(sys.argv) == 2:
@@ -46,7 +46,7 @@ try:
 except:
     pyvi_logger.exception("Exception while creating the transports.")
     lr = logs.LogReader(conf_file)
-    lr.send_mail()
+    lr.send_mail("Exception while creating the transports.")
     raise
 
 measurements = Queue.Queue(maxsize=100)

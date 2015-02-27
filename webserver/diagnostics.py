@@ -30,7 +30,7 @@ class sendlogs(object):
 
     def GET(self, *args):
         timestamp = time.ctime(time.time())
-        lr.send_mail()
+        lr.send_mail("Logs sent from webpage.")
         return render.sendmail(LOG_MAIL, timestamp)
 
 

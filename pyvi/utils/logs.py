@@ -71,6 +71,7 @@ class LogReader(object):
         self.conf = Configuration(self.conf_file)
         self.log_dir = self.conf.log_dir()
         self.log_mail = self.conf.log_mail()
+        self.pivi_id = self.conf.pivi_id()
 
     def _filter_logs(self, filename):
         test1 = re.match('.*\.log$', filename)
@@ -122,13 +123,14 @@ class LogReader(object):
 
         return logs_names, logs_cont
 
-    def send_mail(self):
+    def send_mail(self, msg=""):
         self._zip_logs()
         send_to = [self.log_mail]
         send_from = 'pivi.logs.reporter@gmail.com'
         files = ['/tmp/pivi-logs.zip', self.conf_file]
-        subject = 'Pivi Logs'
-        text = "These are the collected logs of a Pivi Smart Meter in trouble!"
+        subject = 'Pivi Logs for ID: ' + str(self.pivi_id)
+        text = "These are the collected logs of a Pivi in trouble!"
+        text += msg
         username = send_from
         password = 'pivi.logs'
 

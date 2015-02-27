@@ -35,7 +35,7 @@ class ThreadSerial(threading.Thread):
                         self.l.error("Queue was full dropping {}".format(m))
             except:
                 self.l.exception("Exception while reading from serial.")
-                self.lr.send_mail()
+                self.lr.send_mail("Exception while reading from serial.")
 
     def kill(self):
         self.running = False
@@ -73,7 +73,7 @@ class ThreadUdp(threading.Thread):
                     self.port.write(pkg)
             except:
                 self.l.exception("Exception while sending via UDP.")
-                self.lr.send_mail()
+                self.lr.send_mail("Exception while sending via UDP.")
 
     def kill(self):
         self.running = False
