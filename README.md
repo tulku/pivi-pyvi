@@ -1,6 +1,6 @@
 # PIVI #
 
-This is the software that runs on the raspberry pi on each of the PIVI sensors.
+This is the software that runs on the raspberry pi on each of the PIVI sensors along with the provisioning software to deploy the PIVI stack on a Raspberry Pi
 
 All the code in this repository is licensed Creative Commons 
 
