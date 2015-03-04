@@ -61,6 +61,7 @@ signal.signal(signal.SIGTERM, sig_handler)
 
 pyvi_logger.info('Pyvi threads about to start.')
 serial.start()
+
 udp.start()
 
 while (True):
