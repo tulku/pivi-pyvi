@@ -1,3 +1,10 @@
+# This file is part of the Pyvi software package. Released
+# under the Creative Commons ATT-NC-ShareAlire license
+# http://creativecommons.org/licenses/by-nc-sa/4.0/
+# Copyright (C) 2014, 2015 LESS Industries S.A.
+# Lucas Chiesa <lucas@lessinduestries.com>
+
+
 from transport import Transport
 import socket
 
