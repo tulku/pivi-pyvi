@@ -77,10 +77,11 @@ class ThreadUdp(threading.Thread):
                     msg = "Sending from mac: {}, pkg: {}".format(self.mac, m)
                     self.l.debug(msg)
                     pkg = self.protocol.pack(m)
+                    self.port.reopen()
                     self.port.write(pkg)
+                    self.port.close()
             except:
                 self.l.exception("Exception while sending via UDP.")
-                self.lr.send_mail("Exception while sending via UDP.")
 
     def kill(self):
         self.running = False
