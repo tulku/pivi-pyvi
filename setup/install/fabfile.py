@@ -7,7 +7,7 @@ DEBS_MAIN = 'git python-serial python-pip lighttpd supervisor fabric'
 
 PIP_MODS = ['flup', 'web.py']
 
-GIT_ROOT = 'git@bitbucket.org:less-is-more/'
+GIT_ROOT = 'https://github.com/LESSIoT/'
 
 # Sudo password
 env.password = 'raspberry'
@@ -24,7 +24,7 @@ def from_tulku():
     before merging into trimaker repos.
     """
     global GIT_ROOT
-    GIT_ROOT = 'git@bitbucket.org:tulku/'
+    GIT_ROOT = 'https://github.com/tulku/'
 
 
 @task
@@ -105,7 +105,7 @@ def local_server():
     Configures the pivi to talk to a local server
     """
     global SERVER_IP
-    SERVER_IP = "192.168.1.47"
+    SERVER_IP = "192.168.0.12"
 
 
 @task
@@ -114,8 +114,6 @@ def install():
     Install all needed software to run the Trimaker printer.
     It assumes that the filesystem is already expanded.
     """
-    # Copies the deployment ssh key
-    copy_sshid()
     # Install deb packages in main
     debian_main()
     # Install packages from pip
@@ -130,11 +128,6 @@ def reboot_pi():
     Reboots the target host.
     """
     reboot(wait=5)
-
-
-def copy_sshid():
-    put('keys/*', '/home/pi/.ssh/')
-    run('chmod og-r /home/pi/.ssh/id_rsa')
 
 
 def copy_configs():
@@ -154,7 +147,7 @@ def replace_config():
 
 
 def install_pivi():
-    git_get('pivi-code', 'src')
+    git_get('pivi-pyvi', 'src')
     sudo('cd /home/pi/src/pyvi/; python setup.py install')
     sudo('cd /home/pi/src/webserver/; chown -R www-data:www-data *')
     sudo('update-rc.d lighttpd defaults')
@@ -191,7 +184,7 @@ def git_get(name, dest=None):
     """
     if dest is None:
         dest = name
-    url = GIT_ROOT + name
+    url = GIT_ROOT + name + '.git'
     code_dir = '/home/pi/' + dest
     # On the first run it will clone and then fetch.
     # the fetch step is not needed right after cloning
