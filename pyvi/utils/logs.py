@@ -137,9 +137,9 @@ class LogReader(object):
         send_to = [self.log_mail]
         send_from = 'pivi.logs.reporter@gmail.com'
         files = ['/tmp/pivi-logs.zip', self.conf_file]
-        subject = 'Pivi Logs for ID: ' + str(self.pivi_id)
+        subject = 'Pivi Logs for ID ' + str(self.pivi_id)
         text = "These are the collected logs of a Pivi in trouble!"
-        text += msg
+        text += '\n\n' + msg
         username = send_from
         password = 'pivi.logs'
 

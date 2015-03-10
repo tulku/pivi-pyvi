@@ -6,6 +6,7 @@ virtual = ${VIRTUAL}
 level = Debug
 dir = /var/pivi
 mail = lucas@lessindustries.com
+send_email = True
 
 [serial]
 device = /dev/ttyAMA0

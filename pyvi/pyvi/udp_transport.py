@@ -29,10 +29,15 @@ class UdpTransport(Transport):
     def _open(self):
         self.svr = self.settings['address']
         self.port = int(self.settings['port'])
-        self.reopen()
+        return self.reopen()
 
     def write(self, value):
-        self.sock.sendto(value, (self.svr, self.port))
+        try:
+            self.sock.sendto(value, (self.svr, self.port))
+        except socket.error:
+            raise
+            return False
+        return True
 
     def close(self):
         if self.sock is not None:
@@ -45,8 +50,11 @@ class UdpTransport(Transport):
 
     def reopen(self):
         if self.sock is None:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            print 'reopening udp port'
+            try:
+                self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            except socket.error:
+                print 'Failed to open udp port'
+                raise
+                return False
         else:
             print 'not reopening udp port'
