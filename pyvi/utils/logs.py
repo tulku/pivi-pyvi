@@ -131,6 +131,8 @@ class LogReader(object):
         return logs_names, logs_cont
 
     def send_mail(self, msg=""):
+        if not self.conf.send_email():
+            return
         self._zip_logs()
         send_to = [self.log_mail]
         send_from = 'pivi.logs.reporter@gmail.com'

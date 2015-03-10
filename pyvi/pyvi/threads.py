@@ -75,9 +75,9 @@ class ThreadUdp(threading.Thread):
             try:
                 if m is not None:
                     msg = "Sending from mac: {}, pkg: {}".format(self.mac, m)
+                    self.port.reopen()
                     self.l.debug(msg)
                     pkg = self.protocol.pack(m)
-                    self.port.reopen()
                     self.port.write(pkg)
                     self.port.close()
             except:

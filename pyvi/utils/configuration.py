@@ -21,6 +21,9 @@ class Configuration(object):
     def is_virtual(self):
         return self._bool(self.config.get('general', 'virtual'))
 
+    def send_email(self):
+        return self._bool(self.config.get('logs', 'send_email'))
+
     def server_uri(self):
         address = self.config.get('server', 'address').lower()
         port = self.config.get('server', 'Port').lower()

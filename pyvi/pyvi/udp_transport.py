@@ -46,6 +46,7 @@ class UdpTransport(Transport):
     def reopen(self):
         if self.sock is None:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             print 'reopening udp port'
         else:
             print 'not reopening udp port'
