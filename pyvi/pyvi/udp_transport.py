@@ -27,15 +27,34 @@ class UdpTransport(Transport):
         self.ans_buff = ans
 
     def _open(self):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.svr = self.settings['address']
         self.port = int(self.settings['port'])
+        return self.reopen()
 
     def write(self, value):
-        self.sock.sendto(value, (self.svr, self.port))
+        try:
+            self.sock.sendto(value, (self.svr, self.port))
+        except socket.error:
+            raise
+            return False
+        return True
 
-    def read(self):
-        pass
+    def close(self):
+        if self.sock is not None:
+            print 'closing port'
+            self.sock.shutdown(socket.SHUT_RDWR)
+            self.sock.close()
+            self.sock = None
+        else:
+            print 'not closing port'
 
-    def flush(self):
-        pass
+    def reopen(self):
+        if self.sock is None:
+            try:
+                self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            except socket.error:
+                print 'Failed to open udp port'
+                raise
+                return False
+        else:
+            print 'not reopening udp port'

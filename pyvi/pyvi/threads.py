@@ -42,7 +42,6 @@ class ThreadSerial(threading.Thread):
                         self.l.error("Queue was full dropping {}".format(m))
             except:
                 self.l.exception("Exception while reading from serial.")
-                self.lr.send_mail("Exception while reading from serial.")
 
     def kill(self):
         self.running = False
@@ -69,18 +68,15 @@ class ThreadUdp(threading.Thread):
         while(self.running):
             try:
                 m = self.queue.get(timeout=2)
-            except Queue.Empty:
-                self.l.debug("Incoming queue empty")
-                continue
-            try:
                 if m is not None:
                     msg = "Sending from mac: {}, pkg: {}".format(self.mac, m)
                     self.l.debug(msg)
                     pkg = self.protocol.pack(m)
                     self.port.write(pkg)
+            except Queue.Empty:
+                self.l.debug("Incoming queue empty")
             except:
                 self.l.exception("Exception while sending via UDP.")
-                self.lr.send_mail("Exception while sending via UDP.")
 
     def kill(self):
         self.running = False
