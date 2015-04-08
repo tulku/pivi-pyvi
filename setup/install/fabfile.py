@@ -14,7 +14,7 @@ env.password = 'raspberry'
 
 PIVI_ID = "0"
 VIRTUAL = "False"
-SERVER_IP = "54.200.230.21"
+SERVER_IP = "52.11.72.101"
 
 
 @task
