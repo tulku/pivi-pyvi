@@ -29,9 +29,16 @@ class index(object):
 class sendlogs(object):
 
     def GET(self, *args):
+        web.header("Content-Disposition", "attachment; filename=pivi-logs.zip")
+        web.header('Content-Type', 'application/zip')
         timestamp = time.ctime(time.time())
-        lr.send_mail("Logs sent from webpage.")
-        return render.sendmail(LOG_MAIL, timestamp)
+        lr.zip_logs()
+        path = '/tmp/pivi-logs.zip'
+        try:
+            f = open(path, 'r')
+            return f.read()
+        except:
+            return render.sendmail("ERROR, no zip file generated", timestamp)
 
 
 if __name__ == "__main__":

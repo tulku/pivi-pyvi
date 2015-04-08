@@ -109,13 +109,14 @@ class LogReader(object):
             if e.errno != errno.ENOENT:
                 raise
 
-    def _zip_logs(self):
+    def zip_logs(self):
         zipname = '/tmp/pivi-logs.zip'
         self._silentremove(zipname)
         out = zipfile.ZipFile(zipname, 'w')
         for root, dirs, files in os.walk(self.log_dir):
             for file_name in files:
                 out.write(os.path.join(root, file_name))
+        out.write(self.conf_file)
         out.close()
 
     def get_logs(self):
@@ -130,10 +131,10 @@ class LogReader(object):
 
         return logs_names, logs_cont
 
-    def send_mail(self, msg=""):
+    def send_log_mail(self, msg=""):
         if not self.conf.send_email():
             return
-        self._zip_logs()
+        self.zip_logs()
         send_to = [self.log_mail]
         send_from = 'pivi.logs.reporter@gmail.com'
         files = ['/tmp/pivi-logs.zip', self.conf_file]

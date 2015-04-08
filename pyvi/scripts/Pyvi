@@ -27,11 +27,6 @@ def sig_handler(signum, frame):
     udp.kill()
     serial.join()
     udp.join()
-    lr = logs.LogReader(conf_file)
-    try:
-        lr.send_mail('Signal handler stopping the program')
-    except socket.gaierror:
-        pyvi_logger.error("Cannot send log email. Do I have Internet?")
     sys.exit(0)
 
 if len(sys.argv) == 2:
