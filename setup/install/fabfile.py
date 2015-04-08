@@ -190,6 +190,7 @@ def git_get(name, dest=None):
     # the fetch step is not needed right after cloning
     with settings(warn_only=True):
         if run("test -d %s" % code_dir).failed:
-            run('git clone %s %s' % (url, code_dir))
-    with cd(code_dir):
-        run('git pull origin master')
+            pass
+        else:
+            sudo("rm -rf %s" % code_dir)
+    run('git clone %s %s' % (url, code_dir))
