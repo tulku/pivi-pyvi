@@ -3,11 +3,16 @@ from string import Template
 from fabric.operations import sudo, run, put, reboot
 from fabric.api import task, env, settings
 
+try:
+    from dictdeploy import ids, config_deploy
+except:
+    raise "missing deployment configuration"
+
 DEBS_MAIN = 'git python-serial python-pip lighttpd supervisor fabric python-webpy'
 GIT_ROOT = 'https://github.com/LESSIoT/'
 
 # Sudo password
-env.password = 'raspberry'
+env.password = '9SCRQPK@wesQ?HC'
 
 PIVI_ID = "0"
 VIRTUAL = "False"
@@ -54,7 +59,8 @@ def copy_configs():
 
 def replace_config(pivi_id, virtual, server_ip):
     kw = {'PIVI_ID': pivi_id, 'VIRTUAL': virtual,
-          'SERVER_IP': server_ip}
+          'SERVER_IP': server_ip, 'GCBA_ID': ids[int(pivi_id)]}
+    kw.update(config_deploy)
     f = open('pivi.cfg.in', 'r')
     template = Template(f.read())
     replaced = template.safe_substitute(kw)
@@ -65,7 +71,7 @@ def replace_config(pivi_id, virtual, server_ip):
 
 
 def install_pivi():
-    git_get('pivi-pyvi', 'src')
+    git_get('pivi-gcba', 'src')
     sudo('cd /home/pi/src/pyvi/; python setup.py install')
     sudo('cd /home/pi/src/webserver/; chown -R www-data:www-data *')
     sudo('update-rc.d lighttpd defaults')
@@ -88,7 +94,8 @@ def git_get(name, dest=None):
     """
     if dest is None:
         dest = name
-    url = GIT_ROOT + name + '.git'
+    # url = GIT_ROOT + name + '.git'
+    url = GIT_ROOT + name
     code_dir = '/home/pi/' + dest
     # On the first run it will clone and then fetch.
     # the fetch step is not needed right after cloning
