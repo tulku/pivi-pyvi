@@ -34,4 +34,4 @@ To start a virtual sensor on a computer (and help debug the software):
 1. Pyvi virtual.cfg 
 1. Check the logs on the directory you specified
 1. On another console, also sourcing the virtualenv
-1. python test/server.py
+1. python tests/server.py
