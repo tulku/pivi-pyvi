@@ -27,8 +27,8 @@ To start a virtual sensor on a computer (and help debug the software):
 1. clone this repo and cd into it
 1. virtualenv env
 1. source env/bin/activate
+1. pip install -r REQUIREMENTS.txt
 1. cd pyvi
-1. pip install -r requirements.txt
 1. python setup.py install
 1. Verify the virtual.cfg file (make sure the log directory exists, set virtual = True and server to localhost)
 1. Pyvi virtual.cfg 
