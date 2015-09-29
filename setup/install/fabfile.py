@@ -3,9 +3,7 @@ from string import Template
 from fabric.operations import sudo, run, put, reboot
 from fabric.api import task, cd, env, settings
 
-DEBS_MAIN = 'git python-serial python-pip lighttpd supervisor fabric'
-
-PIP_MODS = ['flup', 'web.py']
+DEBS_MAIN = 'git python-serial python-pip lighttpd supervisor fabric python-webpy'
 
 GIT_ROOT = 'https://github.com/LESSIoT/'
 
@@ -117,7 +115,7 @@ def install():
     # Install deb packages in main
     debian_main()
     # Install packages from pip
-    pip_all()
+    # pip_all()
     # Clone and install pimaker software
     install_pivi()
 

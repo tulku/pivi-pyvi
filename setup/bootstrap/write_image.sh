@@ -4,8 +4,8 @@
 # This script writes the rasbian image to an SD card.
 ##
 
-IMG_URL="http://downloads.raspberrypi.org/raspbian/images/raspbian-2015-02-17/2015-02-16-raspbian-wheezy.zip"
-IMG_NAME="2015-02-16-raspbian-wheezy"
+IMG_URL="https://downloads.raspberrypi.org/raspbian/images/raspbian-2015-05-07/2015-05-05-raspbian-wheezy.zip"
+IMG_NAME="2015-05-05-raspbian-wheezy"
 
 if [ $# -lt 1 ]; then
   echo "USAGE: $0 <SD device>"
