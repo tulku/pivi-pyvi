@@ -6,7 +6,8 @@ from fabric.api import task, env, settings
 try:
     from dictdeploy import ids, config_deploy
 except:
-    raise "missing deployment configuration"
+    from dictdeploy_sample import ids, config_deploy
+    print "Missing deployment configuration, using defaults"
 
 DEBS_MAIN = 'git python-serial python-pip lighttpd supervisor fabric python-webpy'
 GIT_ROOT = 'https://github.com/LESSIoT/'
